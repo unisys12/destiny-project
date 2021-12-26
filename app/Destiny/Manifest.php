@@ -82,11 +82,18 @@ class Manifest
         };
     }
 
-    public function getVersion()
+    public function getLocalVersion()
     {
         $local = $this->readStoredManifest();
 
         return $local->version;
+    }
+
+    public function getRemoteVersion()
+    {
+        $remote = $this->download();
+
+        return $remote['Response']['version'];
     }
 
     /**
@@ -106,16 +113,21 @@ class Manifest
             throw $e;
         }
         $localVersion = $local->version;
-        $remote = $this->download();
-        $remoteVersion = $remote['Response']['version'];
+        $remoteVersion = $this->getRemoteVersion();
 
         print "Local Version: " . $localVersion . "\n";
         print "Remote Version: " . $remoteVersion . "\n";
 
         if ($localVersion != $remoteVersion) {
             print "The current local version of the Manifest is out of date.\n";
-            print "Updating it now...\n";
-            $this->store($remote);
+
+            print "Deleteing the old one first.";
+            Storage::delete('public/manifests/manifest.json');
+
+            print "Updating to the newest version.";
+            $this->store($this->download());
+
+            // Check and return the lastest version number to stdout
             $newLocal = $this->readStoredManifest();
             return $newLocal->version;
         } else {
@@ -129,7 +141,7 @@ class Manifest
      */
     private function checkForLocalManifest()
     {
-        if (file_exists(public_path('storage/manifests/manifest.json'))) {
+        if (Storage::assertExists('public/manifests/manifest.json')) {
             return true;
         } else {
             return false;
