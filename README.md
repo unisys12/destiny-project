@@ -4,8 +4,17 @@ DESTINY PROJECT
 # Purpose
 Something to do
 
-## Usage
+## Configuration
+- This projects makes use of [PHP Enumerations]('https://www.php.net/manual/en/language.enumerations.basics.php'), so your env must support PHP 8.1.
+- Make sure you can update your `php.ini` to support a larger amount of memory. The contentfile is just over 30 Mb and some of the extracted data is very large as well. I have my local env configured like so: 
+    ```script
+    ; Maximum amount of memory a script may consume
+    ; https://php.net/memory-limit
+    memory_limit = 768M
+    ```
 - Make sure you have a symlink setup between your Storage directory and Public. `php artisan storage:link`
+
+## Usage
 - `php artisan destiny:contentfile` _(downloads the latest Manifest & SQLite db)_
 - `php artisan migrate` _(setup the local db tables)_
 - `php artisan db:seed` _(seeds by reading the latest SQLite db)_
