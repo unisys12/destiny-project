@@ -206,4 +206,44 @@ class Manifest
             return 0;
         }
     }
+
+    /**
+     * Store the downloaded Manifest
+     *
+     * @param string $path
+     */
+    public function storeMobileAssetContent(string $path)
+    {
+        // Download the content file
+        $db = $this->downloadMobileWorldContent($path);
+
+        // save it as a compressed file, which it is
+        $file = Storage::put('public/contentfiles/asset_contentfile.zip', $db, 'public');
+
+        if ($file) {
+            print "Mobile Asset database saved successfully.\n";
+
+            // unzip the file
+            $zip = new \ZipArchive;
+
+            if ($zip->open('public/storage/contentfiles/asset_contentfile.zip') === true) {
+                print "extracting the archive\n";
+                $zip->extractTo("storage/app/public/contentfiles/assets")
+                    ? print "Extraction status: " . $zip->getStatusString() . "\n\n"
+                    : print "Extraction failure status: " . $zip->getStatusString() . "\n\n";
+
+                print "closing the archive\n";
+                $zip->close()
+                    ? print "Closing status: " . $zip->getStatusString() . "\n\n"
+                    : print "Closing failure status: " . $zip->getStatusString() . "\n\n";
+            } else {
+                echo "Extraction Failed!";
+            }
+
+            return 1;
+        } else {
+            print "There was an issue saving the asset database locally.";
+            return 0;
+        }
+    }
 }
